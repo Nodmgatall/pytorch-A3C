@@ -13,12 +13,27 @@ import torch.multiprocessing as mp
 from shared_adam import SharedAdam
 import gym
 import math, os
-os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["OMP_NUM_THREADS"] = "24"
+import sys
 
-UPDATE_GLOBAL_ITER = 5
-GAMMA = 0.9
-MAX_EP = 3000
-MAX_EP_STEP = 200
+if(sys.argv[1] == "--help"):
+    print("update global each n interations")
+    print("gamma")
+    print("Max Episodes")
+    print("Max episode step")
+    print("specified name or nothing")
+    print("worker count or if empty = cpu count")
+
+UPDATE_GLOBAL_ITER = int(sys.argv[1])
+GAMMA = float(sys.argv[2])
+MAX_EP = int(sys.argv[3])
+MAX_EP_STEP = int(sys.argv[4])
+workerCount = int(sys.argv[5]) if sys.argv[5] else 48 #mp.cpu_count()
+print(UPDATE_GLOBAL_ITER )
+print(GAMMA )
+print(MAX_EP )
+print(MAX_EP_STEP )
+print(workerCount )
 
 env = gym.make('Pendulum-v0')
 N_S = env.observation_space.shape[0]
@@ -115,7 +130,7 @@ if __name__ == "__main__":
     global_ep, global_ep_r, res_queue = mp.Value('i', 0), mp.Value('d', 0.), mp.Queue()
 
     # parallel training
-    workers = [Worker(gnet, opt, global_ep, global_ep_r, res_queue, i) for i in range(mp.cpu_count())]
+    workers = [Worker(gnet, opt, global_ep, global_ep_r, res_queue, i) for i in range(workerCount)]
     [w.start() for w in workers]
     res = []                    # record episode reward to plot
     while True:
@@ -127,7 +142,9 @@ if __name__ == "__main__":
     [w.join() for w in workers]
 
     import matplotlib.pyplot as plt
-    plt.plot(res)
-    plt.ylabel('Moving average ep reward')
-    plt.xlabel('Step')
-    plt.show()
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    fileName = "results/continuous" + "-GlobalUpdateIter_"+str(UPDATE_GLOBAL_ITER)  + "-Gamma" + str(GAMMA) + "-MaxEp_"+ str(MAX_EP)  + "-MaxEpStep_" + str(MAX_EP_STEP) + "-WorkerCount_" + str(workerCount)
+    np.save(fileName, res)
