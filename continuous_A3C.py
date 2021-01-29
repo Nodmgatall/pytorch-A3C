@@ -146,5 +146,5 @@ if __name__ == "__main__":
     import matplotlib.pyplot as plt
     import numpy as np
 
-    fileName = "results/continuous" + "-GlobalUpdateIter_"+str(UPDATE_GLOBAL_ITER)  + "-Gamma" + str(GAMMA) + "-MaxEp_"+ str(MAX_EP)  + "-MaxEpStep_" + str(MAX_EP_STEP) + "-WorkerCount_" + str(workerCount)
+    fileName = "results/reruns/continuous" + "-GlobalUpdateIter_"+str(UPDATE_GLOBAL_ITER)  + "-Gamma" + str(GAMMA) + "-MaxEp_"+ str(MAX_EP)  + "-MaxEpStep_" + str(MAX_EP_STEP) + "-WorkerCount_" + str(workerCount)
     np.save(fileName, res)
